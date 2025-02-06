@@ -3,13 +3,14 @@ package service
 import (
 	"context"
 	"fmt"
-	"golang.org/x/crypto/bcrypt"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 	"sso/internal/config"
 	"sso/internal/models"
 	"sso/pkg/jwt"
 	sl "sso/pkg/logger"
+
+	"golang.org/x/crypto/bcrypt"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 func (s *Service) SignIn(ctx context.Context, username string, password string, appID int) (string, string, error) {
