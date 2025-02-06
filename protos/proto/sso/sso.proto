@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package sso;
+
+option go_package = "sso.v1;sso";
+
+service Auth {
+  rpc Login (LoginRequest) returns (LoginResponse);
+  rpc Logout (LogoutRequest) returns (LogoutResponse);
+  rpc RefreshToken (RefreshTokenRequest) returns (RefreshTokenResponse);
+}
+
+message LoginRequest {
+  string username = 1;
+  string password = 2;
+  int32 app_id = 3;
+}
+
+message LoginResponse {
+  string access_token = 1;
+}
+
+message LogoutRequest {
+}
+
+message LogoutResponse {
+  bool success = 1;
+}
+
+message RefreshTokenRequest {
+}
+
+message RefreshTokenResponse {
+  string access_token = 1;
+}
