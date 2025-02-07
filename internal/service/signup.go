@@ -3,27 +3,28 @@ package service
 import (
 	"context"
 	"fmt"
+	"golang.org/x/crypto/bcrypt"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"sso/internal/config"
 	"sso/internal/models"
 	"sso/pkg/jwt"
 	sl "sso/pkg/logger"
-
-	"golang.org/x/crypto/bcrypt"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
-func (s *Service) SignIn(ctx context.Context, username string, password string, appID int) (string, string, error) {
-	const op = "service.SignIn"
-	hashedPassword := []byte{}
-	user, err := s.userProvider.User(ctx, username)
+func (s *Service) SignUp(ctx context.Context, username string, password string, appID int) (string, string, error) {
+	const op = "service.SignUp"
+
+	passwordHash, err := bcrypt.GenerateFromPassword([]byte(password), 14)
 	if err != nil {
-		return "", "", fmt.Errorf("failed getting data values in mssql database: %w", err)
+		sl.Log.Error(op, "failed hashing password", sl.Err(err))
+		return "", "", err
 	}
 
-	err = bcrypt.CompareHashAndPassword(hashedPassword, []byte(password))
+	// repository not implemented
+	user, err := s.saveUser.SaveUser(ctx, username, passwordHash)
 	if err != nil {
-		return "", "", fmt.Errorf("%s: %w", op, err)
+		return "", "", fmt.Errorf("failed getting data values in mssql database: %w", err)
 	}
 
 	app, err := s.appProvider.App(ctx, appID)
@@ -42,13 +43,13 @@ func (s *Service) SignIn(ctx context.Context, username string, password string, 
 	accessToken, err := jwt.GenerateToken(&userInfo, &app, config.Cfg.AccessTokenTTL, session.JTI)
 	if err != nil {
 		sl.Log.Warn("failed to generate token", sl.Err(err))
-		return "", "", fmt.Errorf("%s: %w", op, err)
+		return "", "", fmt.Errorf("%s: %w", op, sl.Err(err))
 	}
 
 	refreshToken, err := jwt.GenerateToken(&userInfo, &app, config.Cfg.RefreshTokenTTL, session.JTI)
 	if err != nil {
 		sl.Log.Warn("failed to generate token", sl.Err(err))
-		return "", "", fmt.Errorf("%s: %w", op, err)
+		return "", "", fmt.Errorf("%s: %w", op, sl.Err(err))
 	}
 
 	return accessToken, refreshToken, nil

@@ -1,35 +1,76 @@
 syntax = "proto3";
-
 package sso;
-
 option go_package = "sso.v1;sso";
 
+// Service for user authentication and authorization
 service Auth {
-  rpc Login (LoginRequest) returns (LoginResponse);
+  // Registers a new user
+  rpc SignUp (SignupRequest) returns (SignupResponse);
+
+  // Authenticates a user and returns an access token
+  rpc SignIn (SignInRequest) returns (SignInResponse);
+
+  // Revokes the current access token
   rpc Logout (LogoutRequest) returns (LogoutResponse);
+
+  // Refreshes the access token using a refresh token
   rpc RefreshToken (RefreshTokenRequest) returns (RefreshTokenResponse);
+
+  // Validates the given access token
+  rpc ValidateToken (ValidateTokenRequest) returns (ValidateTokenResponse);
 }
 
-message LoginRequest {
-  string username = 1;
-  string password = 2;
-  int32 app_id = 3;
+// Request to register a new user
+message SignupRequest {
+  string username = 1; // Username for the new user
+  string password = 2; // Password for the new user
+  int32 app_id = 3;    // Application ID
 }
 
-message LoginResponse {
-  string access_token = 1;
+// Response after successful registration
+message SignupResponse {
+  string access_token = 1; // Access token for the new user
 }
 
+// Request to authenticate a user
+message SignInRequest {
+  string username = 1; // Username for authentication
+  string password = 2; // Password for authentication
+  int32 app_id = 3;    // Application ID
+}
+
+// Response after successful authentication
+message SignInResponse {
+  string access_token = 1; // Access token for the authenticated user
+}
+
+// Request to revoke the current access token
 message LogoutRequest {
 }
 
+// Response after successful logout
 message LogoutResponse {
-  bool success = 1;
+  bool success = 1; // Indicates whether the logout was successful
 }
 
+// Request to refresh the access token
 message RefreshTokenRequest {
+  string refresh_token = 1; // Refresh token for obtaining a new access token
 }
 
+// Response after refreshing the access token
 message RefreshTokenResponse {
-  string access_token = 1;
+  string access_token = 1; // New access token
+}
+
+// Request to validate an access token
+message ValidateTokenRequest {
+  string access_token = 1; // Access token to validate
+}
+
+// Response after validating the access token
+message ValidateTokenResponse {
+  bool is_valid = 1;       // Indicates whether the token is valid
+  string username = 2;     // Username associated with the token
+  int32 app_id = 3;        // Application ID associated with the token
 }

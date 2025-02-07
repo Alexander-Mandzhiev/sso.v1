@@ -11,6 +11,10 @@ var (
 	ErrInvalidCredentials = errors.New("invalid credentials")
 )
 
+type SaveUser interface {
+	SaveUser(ctx context.Context, username string, passwordHash []byte) (models.User, error)
+}
+
 type UserProvider interface {
 	User(ctx context.Context, username string) (models.User, error)
 }
@@ -30,8 +34,9 @@ type Service struct {
 	userProvider    UserProvider
 	appProvider     AppProvider
 	sessionProvider SessionProvider
+	saveUser        SaveUser
 }
 
-func New(userProvider UserProvider, appProvider AppProvider, sessionProvider SessionProvider) *Service {
-	return &Service{userProvider: userProvider, appProvider: appProvider, sessionProvider: sessionProvider}
+func New(userProvider UserProvider, appProvider AppProvider, sessionProvider SessionProvider, saveUser SaveUser) *Service {
+	return &Service{userProvider: userProvider, appProvider: appProvider, sessionProvider: sessionProvider, saveUser: saveUser}
 }

@@ -10,8 +10,8 @@ type App struct {
 	GRPCServer *grpcapp.App
 }
 
-func New(upp, agroReports, session *repository.Repository) *App {
-	authService := service.New(upp, agroReports, session)
+func New(upp, agroReports, session, userSave *repository.Repository) *App {
+	authService := service.New(upp, agroReports, session, userSave)
 	grpcApp := grpcapp.New(authService)
 	return &App{
 		GRPCServer: grpcApp,

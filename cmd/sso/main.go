@@ -21,14 +21,20 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	saveUser, err := repository.New(config.Cfg.DBUpp)
+	if err != nil {
+		panic(err)
+	}
 	agroReports, err := repository.New(config.Cfg.DBAgroReports)
 	if err != nil {
 		panic(err)
 	}
-
 	session, err := repository.New(config.Cfg.DBAgroReports)
+	if err != nil {
+		panic(err)
+	}
 
-	application := app.New(upp, agroReports, session)
+	application := app.New(upp, agroReports, session, saveUser)
 	go func() {
 		application.GRPCServer.MustRun()
 	}()

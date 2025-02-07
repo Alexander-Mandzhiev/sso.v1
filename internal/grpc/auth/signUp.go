@@ -11,12 +11,12 @@ import (
 	"sso/protos/gen/go/sso"
 )
 
-func (s *serverAPI) Login(ctx context.Context, in *sso.LoginRequest) (*sso.LoginResponse, error) {
+func (s *serverAPI) SignUp(ctx context.Context, in *sso.SignupRequest) (*sso.SignupResponse, error) {
 	if in.GetUsername() == "" || in.GetPassword() == "" || in.GetAppId() == 0 {
 		return nil, status.Error(codes.InvalidArgument, "username, password, and app_id are required")
 	}
 
-	accessToken, refreshToken, err := s.auth.SignIn(ctx, in.GetUsername(), in.GetPassword(), int(in.GetAppId()))
+	accessToken, refreshToken, err := s.auth.SignUp(ctx, in.GetUsername(), in.GetPassword(), int(in.GetAppId()))
 	if err != nil {
 		if errors.Is(err, service.ErrInvalidCredentials) {
 			return nil, status.Error(codes.InvalidArgument, "invalid email or password")
@@ -28,5 +28,5 @@ func (s *serverAPI) Login(ctx context.Context, in *sso.LoginRequest) (*sso.Login
 	outgoingMD := metadata.Pairs("refresh_token", refreshToken)
 	grpc.SendHeader(ctx, outgoingMD)
 
-	return &sso.LoginResponse{AccessToken: accessToken}, nil
+	return &sso.SignupResponse{AccessToken: accessToken}, nil
 }
